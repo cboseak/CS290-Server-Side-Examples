@@ -1,72 +1,45 @@
 var express = require('express');
 
-var app = express();
+var expApp = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+expApp.use(bodyParser.urlencoded({ extended: false }));
+expApp.use(bodyParser.json());
 
-app.engine('handlebars', handlebars.engine);
-app.set('view engine', 'handlebars');
-app.set('port', 3000);
+expApp.engine('handlebars', handlebars.engine);
+expApp.set('view engine', 'handlebars');
+expApp.set('port', 4000);
 
-app.get('/',function(req,res){
+expApp.get('/', function(req,res){
   res.render('home');
 });
 
-app.get('/show-data',function(req,res){
-  var context = {};
-  context.sentData = req.query.myData;
-  res.render('show-data', context);
+expApp.get('get-data', function(req,res){
+  //establishing object with default values
+  var itemsToDisplay = {  params1 : 'no data sent',
+                          params2 : 'no data sent',
+                          params3 : 'no data sent',
+                          params4 : 'no data sent',
+                          params5 : 'no data sent',
+                          params6 : 'no data sent',
+                          params7 : 'no data sent'};
+  //setting values based on parameters in query
+  itemsToDisplay.params1 = req.query.param1;
+  itemsToDisplay.params2 = req.query.param2;
+  itemsToDisplay.params3 = req.query.param3;
+  itemsToDisplay.params4 = req.query.param4;
+  itemsToDisplay.params5 = req.query.param5;
+  itemsToDisplay.params6 = req.query.param6;
+  itemsToDisplay.params7 = req.query.param7;
+
+  res.render('p1', itemsToDisplay.params1);
+  res.render('p2', itemsToDisplay.params2);
+  res.render('p3', itemsToDisplay.params3);
+  res.render('p4', itemsToDisplay.params4);
+  res.render('p5', itemsToDisplay.params5);
+  res.render('p6', itemsToDisplay.params6);
+  res.render('p7', itemsToDisplay.params7);
 });
 
-app.get('/get-loopback',function(req,res){
-  var qParams = "";
-  for (var p in req.query){
-    qParams += "The name " + p + " contains the value " + req.query[p] + ", ";
-  }
-  qParams = qParams.substring(0,qParams.lastIndexOf(','));
-  qParams += '.';
-  var context = {};
-  context.dataList = qParams;
-  res.render('get-loopback', context);
-});
 
-app.get('/get-loopback-improved',function(req,res){
-  var qParams = [];
-  for (var p in req.query){
-    qParams.push({'name':p,'value':req.query[p]})
-  }
-  var context = {};
-  context.dataList = qParams;
-  res.render('get-loopback-improved', context);
-});
-
-app.post('/post-loopback', function(req,res){
-  var qParams = [];
-  for (var p in req.body){
-    qParams.push({'name':p,'value':req.body[p]})
-  }
-  console.log(qParams);
-  console.log(req.body);
-  var context = {};
-  context.dataList = qParams;
-  res.render('post-loopback', context);
-});
-
-app.use(function(req,res){
-  res.status(404);
-  res.render('404');
-});
-
-app.use(function(err, req, res, next){
-  console.error(err.stack);
-  res.type('plain/text');
-  res.status(500);
-  res.render('500');
-});
-
-app.listen(app.get('port'), function(){
-  console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
-});
